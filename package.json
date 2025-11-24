@@ -6,7 +6,7 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "npm-revdeps": "./dist/cli.js"
+    "npm-revdeps": "dist/cli.js"
   },
   "exports": {
     ".": {
