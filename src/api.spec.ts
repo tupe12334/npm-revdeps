@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { fetchReverseDependencies } from './api.js'
 
-// Mock fetch globally
+// Mock global fetch
 const mockFetch = vi.fn()
-global.fetch = mockFetch
+global.fetch = mockFetch as typeof fetch
 
 describe('fetchReverseDependencies', () => {
   beforeEach(() => {
@@ -11,23 +11,23 @@ describe('fetchReverseDependencies', () => {
   })
 
   it('should fetch and transform dependencies successfully', async () => {
-    const mockResponse = {
-      dependent_packages: [
-        {
-          name: 'test-package',
-          platform: 'npm',
-          latest_version: '1.0.0',
-          downloads: 1000,
-          repository_url: 'https://github.com/test/test',
-          homepage_url: 'https://test.com',
-        },
-      ],
-    }
+    const mockData = [
+      {
+        name: 'test-package',
+        latest_release_number: '1.0.0',
+        downloads: 1000,
+        repository_url: 'https://github.com/test/test',
+        homepage: 'https://test.com',
+      },
+    ]
 
     mockFetch.mockResolvedValueOnce({
       ok: true,
       status: 200,
-      json: async () => mockResponse,
+      json: async () => mockData,
+      headers: {
+        get: () => 'application/json',
+      },
     })
 
     const result = await fetchReverseDependencies('express')
@@ -40,9 +40,18 @@ describe('fetchReverseDependencies', () => {
       repository: 'https://github.com/test/test',
       homepage: 'https://test.com',
     })
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      'https://packages.ecosyste.ms/api/v1/registries/npmjs.org/packages/express/dependent_packages',
+      {
+        headers: {
+          Accept: 'application/json',
+        },
+      }
+    )
   })
 
-  it('should handle package not found error', async () => {
+  it('should handle 404 errors', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: false,
       status: 404,
@@ -54,23 +63,23 @@ describe('fetchReverseDependencies', () => {
     )
   })
 
-  it('should handle API errors', async () => {
+  it('should handle other HTTP errors', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: false,
       status: 500,
       statusText: 'Internal Server Error',
     })
 
-    await expect(fetchReverseDependencies('express')).rejects.toThrow(
+    await expect(fetchReverseDependencies('test-pkg')).rejects.toThrow(
       'API request failed: 500 Internal Server Error'
     )
   })
 
-  it('should handle missing dependent_packages in response', async () => {
+  it('should handle empty array response', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
       status: 200,
-      json: async () => ({}),
+      json: async () => [],
     })
 
     const result = await fetchReverseDependencies('express')
@@ -78,24 +87,66 @@ describe('fetchReverseDependencies', () => {
   })
 
   it('should handle packages without version', async () => {
-    const mockResponse = {
-      dependent_packages: [
-        {
-          name: 'test-package',
-          platform: 'npm',
-        },
-      ],
-    }
+    const mockData = [
+      {
+        name: 'test-package',
+        latest_release_number: null,
+        downloads: 100,
+        repository_url: null,
+        homepage: null,
+      },
+    ]
 
     mockFetch.mockResolvedValueOnce({
       ok: true,
       status: 200,
-      json: async () => mockResponse,
+      json: async () => mockData,
     })
 
     const result = await fetchReverseDependencies('express')
 
     expect(result).toHaveLength(1)
     expect(result[0].version).toBe('unknown')
+    expect(result[0].repository).toBeUndefined()
+    expect(result[0].homepage).toBeUndefined()
+  })
+
+  it('should handle non-array response', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => ({ error: 'Something went wrong' }),
+    })
+
+    await expect(fetchReverseDependencies('test-pkg')).rejects.toThrow(
+      'Unexpected API response format'
+    )
+  })
+
+  it('should encode package names with special characters', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => [],
+    })
+
+    await fetchReverseDependencies('@scope/package')
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      'https://packages.ecosyste.ms/api/v1/registries/npmjs.org/packages/%40scope%2Fpackage/dependent_packages',
+      {
+        headers: {
+          Accept: 'application/json',
+        },
+      }
+    )
+  })
+
+  it('should handle network errors', async () => {
+    mockFetch.mockRejectedValueOnce(new Error('Network error'))
+
+    await expect(fetchReverseDependencies('express')).rejects.toThrow(
+      'Network error'
+    )
   })
 })
