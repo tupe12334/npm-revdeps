@@ -11,7 +11,9 @@
     "esbenp",
     "revdeps",
     "ecosyste",
-    "commitlint"
+    "commitlint",
+    "librariesio",
+    "LIBRARIESIO"
   ],
   "languageSettings": [
     {

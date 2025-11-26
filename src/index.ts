@@ -13,6 +13,8 @@ export type {
   EcosystemResponse,
   FilterOptions,
   CliOptions,
+  ApiProvider,
+  ApiOptions,
 } from './types.js'
 
 /**
@@ -24,11 +26,16 @@ export async function getReverseDependencies(
     minDownloads?: number
     maxResults?: number
     sort?: 'downloads' | 'name'
+    provider?: 'ecosystems' | 'librariesio'
+    librariesioApiKey?: string
+    enableFallback?: boolean
   }
 ) {
   const { fetchReverseDependencies } = await import('./api.js')
   const { filterDependencies } = await import('./formatter.js')
 
-  const dependencies = await fetchReverseDependencies(packageName)
-  return filterDependencies(dependencies, options)
+  const { minDownloads, maxResults, sort, ...apiOptions } = options ?? {}
+
+  const dependencies = await fetchReverseDependencies(packageName, apiOptions)
+  return filterDependencies(dependencies, { minDownloads, maxResults, sort })
 }

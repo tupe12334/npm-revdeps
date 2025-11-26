@@ -149,4 +149,156 @@ describe('fetchReverseDependencies', () => {
       'Network error'
     )
   })
+
+  describe('Libraries.io provider', () => {
+    it('should fetch from libraries.io with API key', async () => {
+      const mockData = [
+        {
+          name: 'test-package',
+          latest_stable_release_number: '1.0.0',
+          downloads: 1000,
+          repository_url: 'https://github.com/test/test',
+          homepage: 'https://test.com',
+        },
+      ]
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => mockData,
+      })
+
+      const result = await fetchReverseDependencies('express', {
+        provider: 'librariesio',
+        librariesioApiKey: 'test-key',
+      })
+
+      expect(result).toHaveLength(1)
+      expect(mockFetch).toHaveBeenCalledWith(
+        'https://libraries.io/api/npm/express/dependents?api_key=test-key'
+      )
+    })
+
+    it('should throw error when API key is missing', async () => {
+      await expect(
+        fetchReverseDependencies('express', {
+          provider: 'librariesio',
+        })
+      ).rejects.toThrow('Libraries.io API key is required')
+    })
+
+    it('should handle 401 errors', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 401,
+        statusText: 'Unauthorized',
+      })
+
+      await expect(
+        fetchReverseDependencies('express', {
+          provider: 'librariesio',
+          librariesioApiKey: 'invalid-key',
+        })
+      ).rejects.toThrow('Invalid Libraries.io API key')
+    })
+
+    it('should handle 429 rate limit errors', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 429,
+        statusText: 'Too Many Requests',
+      })
+
+      await expect(
+        fetchReverseDependencies('express', {
+          provider: 'librariesio',
+          librariesioApiKey: 'test-key',
+        })
+      ).rejects.toThrow('Libraries.io API rate limit exceeded')
+    })
+  })
+
+  describe('Fallback functionality', () => {
+    it('should fallback to libraries.io when ecosystems fails', async () => {
+      // First call (ecosystems) fails
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+        statusText: 'Internal Server Error',
+      })
+
+      // Second call (libraries.io) succeeds
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => [
+          {
+            name: 'fallback-package',
+            latest_stable_release_number: '2.0.0',
+            downloads: 500,
+          },
+        ],
+      })
+
+      const result = await fetchReverseDependencies('express', {
+        provider: 'ecosystems',
+        librariesioApiKey: 'test-key',
+        enableFallback: true,
+      })
+
+      expect(result).toHaveLength(1)
+      expect(result[0]?.name).toBe('fallback-package')
+      expect(mockFetch).toHaveBeenCalledTimes(2)
+    })
+
+    it('should fallback to ecosystems when libraries.io fails', async () => {
+      // First call (libraries.io) fails
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+        statusText: 'Internal Server Error',
+      })
+
+      // Second call (ecosystems) succeeds
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => [
+          {
+            name: 'fallback-package',
+            latest_release_number: '2.0.0',
+            downloads: 500,
+          },
+        ],
+      })
+
+      const result = await fetchReverseDependencies('express', {
+        provider: 'librariesio',
+        librariesioApiKey: 'test-key',
+        enableFallback: true,
+      })
+
+      expect(result).toHaveLength(1)
+      expect(result[0]?.name).toBe('fallback-package')
+      expect(mockFetch).toHaveBeenCalledTimes(2)
+    })
+
+    it('should not fallback when disabled', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+        statusText: 'Internal Server Error',
+      })
+
+      await expect(
+        fetchReverseDependencies('express', {
+          provider: 'ecosystems',
+          librariesioApiKey: 'test-key',
+          enableFallback: false,
+        })
+      ).rejects.toThrow('API request failed: 500 Internal Server Error')
+
+      expect(mockFetch).toHaveBeenCalledTimes(1)
+    })
+  })
 })

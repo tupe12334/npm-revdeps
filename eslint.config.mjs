@@ -14,6 +14,7 @@ export default [
       // Allow generic errors for simple CLI app
       'error/no-generic-error': 'off',
       'error/require-custom-error': 'off',
+      'error/no-throw-literal': 'off',
       // Allow type assertions for external API responses
       'no-restricted-syntax': 'off',
       // Allow optional chaining for cleaner code
@@ -25,6 +26,8 @@ export default [
         'error',
         { excludePatterns: ['**/cli.ts', '**/index.ts'] },
       ],
+      // Allow longer files for CLI and test files
+      'max-lines': ['error', { max: 300, skipBlankLines: true, skipComments: true }],
     },
   },
 ]

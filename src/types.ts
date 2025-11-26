@@ -33,3 +33,11 @@ export interface CliOptions {
   filter?: FilterOptions
   interactive?: boolean
 }
+
+export type ApiProvider = 'ecosystems' | 'librariesio'
+
+export interface ApiOptions {
+  provider?: ApiProvider
+  librariesioApiKey?: string
+  enableFallback?: boolean
+}
