@@ -30,6 +30,9 @@ importers:
       '@vitest/coverage-v8':
         specifier: ^4.0.13
         version: 4.0.13(vitest@4.0.13(@types/node@24.10.1)(jiti@2.6.1)(yaml@2.8.1))
+      block-no-verify:
+        specifier: ^1.3.0
+        version: 1.3.0
       cspell:
         specifier: ^9.3.2
         version: 9.3.2
@@ -933,6 +936,10 @@ packages:
     resolution: {integrity: sha512-oeQJs1aa8Ghke8JIK9yuq/+KjMiaYeDZ38jx7MhkXncXlUKjqQ3wEm2X3qCKyjo+ZZofZj+WsEEiqkTtRuE2xQ==}
     engines: {node: ^20.9.0 || >=22.0.0, npm: '>=10.8.2'}
 
+  '@polyhook/sdk@0.1.11':
+    resolution: {integrity: sha512-Tb8NJ6oYxEwWAlsC0R/PFDIxMjYyXsZQOwSjoMD0eEPppyf1BtNfcZO1oSXxM2eQsEynlpOXr6cDku9B7KUSSQ==}
+    engines: {node: '>=18'}
+
   '@rollup/rollup-android-arm-eabi@4.53.3':
     resolution: {integrity: sha512-mRSi+4cBjrRLoaal2PnqH82Wqyb+d3HsPUN/W+WslCXsZsyHa9ZeQQX/pQsZaVIWDkPcpV6jJ+3KLbTbgnwv8w==}
     cpu: [arm]
@@ -1443,6 +1450,7 @@ packages:
   basic-ftp@5.0.5:
     resolution: {integrity: sha512-4Bcg1P8xhUuqcii/S0Z9wiHIrQVPMermM1any+MX5GeGD7faD3/msQUDGLol9wOcz4/jbg/WJnGqoJF6LiBdtg==}
     engines: {node: '>=10.0.0'}
+    deprecated: Security vulnerability fixed in 5.2.1, please upgrade
 
   before-after-hook@4.0.0:
     resolution: {integrity: sha512-q6tR3RPqIB1pMiTRMFcZwuG5T8vwp+vUvEG0vuI6B+Rikh5BfPp2fQ82c925FOs+b0lcFQ8CFrL+KbilfZFhOQ==}
@@ -1450,6 +1458,11 @@ packages:
   better-opn@3.0.2:
     resolution: {integrity: sha512-aVNobHnJqLiUelTaHat9DZ1qM2w0C0Eym4LPI/3JxOnSokGVdsl1T1kN7TFvsEAD8G47A6VKQ0TVHqbBnYMJlQ==}
     engines: {node: '>=12.0.0'}
+
+  block-no-verify@1.3.0:
+    resolution: {integrity: sha512-pUEt/KwRe2Uu5abvSZwaA8J6FCcNqjy+IebPW6DAgag81NmqUnCxd63ueivAa8L3f1bYL0dMXJ9WgJ2uyg1ZvA==}
+    engines: {node: '>=20.0.0'}
+    hasBin: true
 
   brace-expansion@1.1.12:
     resolution: {integrity: sha512-9T9UjW3r0UW5c1Q7GTwllptXwhvYmEzFhzMfZ9H7FQWt+uZePjZPjBP/W1ZEyZ1twGWom5/56TF4lPcqjnDHcg==}
@@ -2212,6 +2225,7 @@ packages:
   git-raw-commits@4.0.0:
     resolution: {integrity: sha512-ICsMM1Wk8xSGMowkOmPrzo2Fgmfo4bMHLNX6ytHjajRJUqvHOw/TFapQ+QG75c3X/tTDDhOSRPGC52dDbNM8FQ==}
     engines: {node: '>=16'}
+    deprecated: Deprecated and no longer maintained. Use @conventional-changelog/git-client instead.
     hasBin: true
 
   git-up@8.1.1:
@@ -4413,6 +4427,8 @@ snapshots:
 
   '@phun-ky/typeof@2.0.3': {}
 
+  '@polyhook/sdk@0.1.11': {}
+
   '@rollup/rollup-android-arm-eabi@4.53.3':
     optional: true
 
@@ -4937,6 +4953,10 @@ snapshots:
   better-opn@3.0.2:
     dependencies:
       open: 8.4.2
+
+  block-no-verify@1.3.0:
+    dependencies:
+      '@polyhook/sdk': 0.1.11
 
   brace-expansion@1.1.12:
     dependencies:

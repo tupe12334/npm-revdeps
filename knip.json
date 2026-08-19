@@ -3,7 +3,7 @@
   "entry": ["src/index.ts", "src/cli.ts"],
   "project": ["src/**/*.ts"],
   "ignore": ["**/*.spec.ts", "**/*.test.ts", "dist/**", "coverage/**"],
-  "ignoreDependencies": [],
+  "ignoreDependencies": ["block-no-verify"],
   "ignoreExportsUsedInFile": true,
   "ignoreWorkspaces": []
 }
