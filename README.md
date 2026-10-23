@@ -222,6 +222,10 @@ pnpm lint
 pnpm format
 ```
 
+## Related Projects
+
+- [moadim.io](https://moadim.io/) — loop engineering: build, schedule & run agent loops.
+
 ## License
 
 MIT © [Your Name](LICENSE)
