@@ -7,6 +7,19 @@ on:
     branches: [main]
 
 jobs:
+  linecheck:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check per-file line limits
+        uses: tupe12334/linecheck@e71061c840a266bc64f7c3de1f5241989c055857 # v1.2.2
+        with:
+          paths: .
+          version: 1.2.2
+
   test:
     runs-on: ubuntu-latest
 
