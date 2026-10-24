@@ -18,7 +18,8 @@ jobs:
         uses: tupe12334/linecheck@e71061c840a266bc64f7c3de1f5241989c055857 # v1.2.2
         with:
           paths: .
-          version: 1.2.2
+          # Latest version published to crates.io; the v1.2.2 tag is git-only.
+          version: 1.2.1
 
   test:
     runs-on: ubuntu-latest
