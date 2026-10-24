@@ -1,0 +1,40 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/tupe12334/linecheck/main/schema/linecheck.schema.json
+
+# Per-file line-count limits, based on the linecheck `--default` preset
+# (warn 200 / error 400). Test files and prose docs get looser tiers,
+# because they are legitimately longer than the modules they cover.
+# First matching rule wins, so specific patterns come first.
+rules:
+  - pattern: "**/*.spec.ts"
+    warn: 300
+    warn_message: "Test file is getting long - consider splitting by behaviour under test"
+    error: 500
+    error_message: "Test file exceeds the hard limit - split it before merging"
+
+  - pattern: "**/*.ts"
+    warn: 200
+    warn_message: "Getting long - consider splitting into smaller modules"
+    error: 400
+    error_message: "File exceeds the hard limit - split it before merging"
+
+  - pattern: "**/*.mjs"
+    warn: 200
+    warn_message: "Getting long - consider splitting into smaller modules"
+    error: 400
+    error_message: "File exceeds the hard limit - split it before merging"
+
+  - pattern: "**/*.md"
+    warn: 300
+    warn_message: "Doc is getting long - consider splitting it or linking out"
+    error: 600
+    error_message: "Doc exceeds the hard limit - split it before merging"
+
+exclude:
+  - "node_modules/**"
+  - "dist/**"
+  - "coverage/**"
+  # Generated lockfile.
+  - "**/pnpm-lock.yaml"
+  # Vendored agent prompts, commands and templates, not project source.
+  - ".claude/**"
+  - ".kiro/**"
